@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"cinema-project-go/internal/database"
+	"cinema-project-go/internal/handlers"
 )
 
 func main() {
@@ -18,11 +19,7 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	r.GET("/ping", handlers.Ping)
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)
 	}

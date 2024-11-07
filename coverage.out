@@ -1,0 +1,10 @@
+mode: set
+cinema-project-go/cmd/main.go:13.13,14.40 1 0
+cinema-project-go/cmd/main.go:14.40,16.3 1 0
+cinema-project-go/cmd/main.go:18.2,23.39 4 0
+cinema-project-go/cmd/main.go:23.39,25.3 1 0
+cinema-project-go/internal/database/database.go:15.15,26.16 3 0
+cinema-project-go/internal/database/database.go:26.16,28.3 1 0
+cinema-project-go/internal/database/database.go:30.2,44.16 3 0
+cinema-project-go/internal/database/database.go:44.16,46.3 1 0
+cinema-project-go/internal/handlers/ping.go:15.27,21.2 2 1

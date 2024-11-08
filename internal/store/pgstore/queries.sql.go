@@ -12,6 +12,74 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createCustomer = `-- name: CreateCustomer :one
+INSERT INTO customers (
+    name,
+    email,
+    phone
+) VALUES (
+    $1, $2, $3
+) RETURNING id, name, email, phone, created_at, updated_at
+`
+
+type CreateCustomerParams struct {
+	Name  string
+	Email string
+	Phone pgtype.Text
+}
+
+func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) (Customer, error) {
+	row := q.db.QueryRow(ctx, createCustomer, arg.Name, arg.Email, arg.Phone)
+	var i Customer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createEmployee = `-- name: CreateEmployee :one
+INSERT INTO employees (
+    name,
+    email,
+    role,
+    phone
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING id, name, email, role, phone, created_at, updated_at
+`
+
+type CreateEmployeeParams struct {
+	Name  string
+	Email string
+	Role  string
+	Phone pgtype.Text
+}
+
+func (q *Queries) CreateEmployee(ctx context.Context, arg CreateEmployeeParams) (Employee, error) {
+	row := q.db.QueryRow(ctx, createEmployee,
+		arg.Name,
+		arg.Email,
+		arg.Role,
+		arg.Phone,
+	)
+	var i Employee
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Role,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createMovie = `-- name: CreateMovie :one
 INSERT INTO movies (
     title,
@@ -50,6 +118,236 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 	return i, err
 }
 
+const createOrder = `-- name: CreateOrder :one
+INSERT INTO orders (
+    customer_id,
+    total_amount,
+    status
+) VALUES (
+    $1, $2, $3
+) RETURNING id, customer_id, total_amount, status, created_at, updated_at
+`
+
+type CreateOrderParams struct {
+	CustomerID  uuid.UUID
+	TotalAmount pgtype.Numeric
+	Status      string
+}
+
+func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error) {
+	row := q.db.QueryRow(ctx, createOrder, arg.CustomerID, arg.TotalAmount, arg.Status)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.TotalAmount,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createOrderItem = `-- name: CreateOrderItem :one
+INSERT INTO order_items (
+    order_id,
+    product_id,
+    quantity,
+    price
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING id, order_id, product_id, quantity, price, created_at, updated_at
+`
+
+type CreateOrderItemParams struct {
+	OrderID   uuid.UUID
+	ProductID uuid.UUID
+	Quantity  int32
+	Price     pgtype.Numeric
+}
+
+func (q *Queries) CreateOrderItem(ctx context.Context, arg CreateOrderItemParams) (OrderItem, error) {
+	row := q.db.QueryRow(ctx, createOrderItem,
+		arg.OrderID,
+		arg.ProductID,
+		arg.Quantity,
+		arg.Price,
+	)
+	var i OrderItem
+	err := row.Scan(
+		&i.ID,
+		&i.OrderID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createProduct = `-- name: CreateProduct :one
+INSERT INTO products (
+    name,
+    price,
+    stock_count,
+    category
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING id, name, price, stock_count, category, created_at, updated_at
+`
+
+type CreateProductParams struct {
+	Name       string
+	Price      pgtype.Numeric
+	StockCount int32
+	Category   string
+}
+
+func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
+	row := q.db.QueryRow(ctx, createProduct,
+		arg.Name,
+		arg.Price,
+		arg.StockCount,
+		arg.Category,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Price,
+		&i.StockCount,
+		&i.Category,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createRoom = `-- name: CreateRoom :one
+INSERT INTO rooms (
+    number,
+    capacity,
+    is_vip
+) VALUES (
+    $1, $2, $3
+) RETURNING id, number, capacity, is_vip, created_at, updated_at
+`
+
+type CreateRoomParams struct {
+	Number   int32
+	Capacity int32
+	IsVip    pgtype.Bool
+}
+
+func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, error) {
+	row := q.db.QueryRow(ctx, createRoom, arg.Number, arg.Capacity, arg.IsVip)
+	var i Room
+	err := row.Scan(
+		&i.ID,
+		&i.Number,
+		&i.Capacity,
+		&i.IsVip,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createSession = `-- name: CreateSession :one
+INSERT INTO sessions (
+    movie_id,
+    room_id,
+    start_time,
+    price
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING id, movie_id, room_id, start_time, price, created_at, updated_at
+`
+
+type CreateSessionParams struct {
+	MovieID   uuid.UUID
+	RoomID    uuid.UUID
+	StartTime pgtype.Timestamp
+	Price     pgtype.Numeric
+}
+
+func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
+	row := q.db.QueryRow(ctx, createSession,
+		arg.MovieID,
+		arg.RoomID,
+		arg.StartTime,
+		arg.Price,
+	)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.MovieID,
+		&i.RoomID,
+		&i.StartTime,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createTicket = `-- name: CreateTicket :one
+INSERT INTO tickets (
+    session_id,
+    customer_id,
+    seat_number,
+    price
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING id, session_id, customer_id, seat_number, price, created_at, updated_at
+`
+
+type CreateTicketParams struct {
+	SessionID  uuid.UUID
+	CustomerID uuid.UUID
+	SeatNumber string
+	Price      pgtype.Numeric
+}
+
+func (q *Queries) CreateTicket(ctx context.Context, arg CreateTicketParams) (Ticket, error) {
+	row := q.db.QueryRow(ctx, createTicket,
+		arg.SessionID,
+		arg.CustomerID,
+		arg.SeatNumber,
+		arg.Price,
+	)
+	var i Ticket
+	err := row.Scan(
+		&i.ID,
+		&i.SessionID,
+		&i.CustomerID,
+		&i.SeatNumber,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const deleteCustomer = `-- name: DeleteCustomer :exec
+DELETE FROM customers WHERE id = $1
+`
+
+func (q *Queries) DeleteCustomer(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteCustomer, id)
+	return err
+}
+
+const deleteEmployee = `-- name: DeleteEmployee :exec
+DELETE FROM employees WHERE id = $1
+`
+
+func (q *Queries) DeleteEmployee(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteEmployee, id)
+	return err
+}
+
 const deleteMovie = `-- name: DeleteMovie :exec
 DELETE FROM movies WHERE id = $1
 `
@@ -59,10 +357,174 @@ func (q *Queries) DeleteMovie(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const deleteOrder = `-- name: DeleteOrder :exec
+DELETE FROM orders WHERE id = $1
+`
+
+func (q *Queries) DeleteOrder(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteOrder, id)
+	return err
+}
+
+const deleteOrderItem = `-- name: DeleteOrderItem :exec
+DELETE FROM order_items WHERE id = $1
+`
+
+func (q *Queries) DeleteOrderItem(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteOrderItem, id)
+	return err
+}
+
+const deleteProduct = `-- name: DeleteProduct :exec
+DELETE FROM products WHERE id = $1
+`
+
+func (q *Queries) DeleteProduct(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteProduct, id)
+	return err
+}
+
+const deleteRoom = `-- name: DeleteRoom :exec
+DELETE FROM rooms WHERE id = $1
+`
+
+func (q *Queries) DeleteRoom(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteRoom, id)
+	return err
+}
+
+const deleteSession = `-- name: DeleteSession :exec
+DELETE FROM sessions WHERE id = $1
+`
+
+func (q *Queries) DeleteSession(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteSession, id)
+	return err
+}
+
+const deleteTicket = `-- name: DeleteTicket :exec
+DELETE FROM tickets WHERE id = $1
+`
+
+func (q *Queries) DeleteTicket(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteTicket, id)
+	return err
+}
+
+const getAvailableSeats = `-- name: GetAvailableSeats :many
+SELECT 
+    generate_series(1, r.capacity) as seat_number
+FROM sessions s
+JOIN rooms r ON s.room_id = r.id
+WHERE s.id = $1
+EXCEPT
+SELECT CAST(seat_number AS integer)
+FROM tickets
+WHERE session_id = $1
+ORDER BY seat_number
+`
+
+func (q *Queries) GetAvailableSeats(ctx context.Context, id uuid.UUID) ([]pgtype.Numeric, error) {
+	rows, err := q.db.Query(ctx, getAvailableSeats, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.Numeric
+	for rows.Next() {
+		var seat_number pgtype.Numeric
+		if err := rows.Scan(&seat_number); err != nil {
+			return nil, err
+		}
+		items = append(items, seat_number)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCustomer = `-- name: GetCustomer :one
+SELECT id, name, email, phone, created_at, updated_at FROM customers WHERE id = $1
+`
+
+// Customers
+func (q *Queries) GetCustomer(ctx context.Context, id uuid.UUID) (Customer, error) {
+	row := q.db.QueryRow(ctx, getCustomer, id)
+	var i Customer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getCustomerByEmail = `-- name: GetCustomerByEmail :one
+SELECT id, name, email, phone, created_at, updated_at FROM customers WHERE email = $1
+`
+
+func (q *Queries) GetCustomerByEmail(ctx context.Context, email string) (Customer, error) {
+	row := q.db.QueryRow(ctx, getCustomerByEmail, email)
+	var i Customer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getEmployee = `-- name: GetEmployee :one
+SELECT id, name, email, role, phone, created_at, updated_at FROM employees WHERE id = $1
+`
+
+// Employees
+func (q *Queries) GetEmployee(ctx context.Context, id uuid.UUID) (Employee, error) {
+	row := q.db.QueryRow(ctx, getEmployee, id)
+	var i Employee
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Role,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getEmployeeByEmail = `-- name: GetEmployeeByEmail :one
+SELECT id, name, email, role, phone, created_at, updated_at FROM employees WHERE email = $1
+`
+
+func (q *Queries) GetEmployeeByEmail(ctx context.Context, email string) (Employee, error) {
+	row := q.db.QueryRow(ctx, getEmployeeByEmail, email)
+	var i Employee
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Role,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getMovie = `-- name: GetMovie :one
 SELECT id, title, duration, genre, release_date, created_at, updated_at FROM movies WHERE id = $1
 `
 
+// Movies
 func (q *Queries) GetMovie(ctx context.Context, id uuid.UUID) (Movie, error) {
 	row := q.db.QueryRow(ctx, getMovie, id)
 	var i Movie
@@ -78,8 +540,290 @@ func (q *Queries) GetMovie(ctx context.Context, id uuid.UUID) (Movie, error) {
 	return i, err
 }
 
+const getOrder = `-- name: GetOrder :one
+SELECT id, customer_id, total_amount, status, created_at, updated_at FROM orders WHERE id = $1
+`
+
+// Orders
+func (q *Queries) GetOrder(ctx context.Context, id uuid.UUID) (Order, error) {
+	row := q.db.QueryRow(ctx, getOrder, id)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.TotalAmount,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getOrderItem = `-- name: GetOrderItem :one
+SELECT id, order_id, product_id, quantity, price, created_at, updated_at FROM order_items WHERE id = $1
+`
+
+// Order Items
+func (q *Queries) GetOrderItem(ctx context.Context, id uuid.UUID) (OrderItem, error) {
+	row := q.db.QueryRow(ctx, getOrderItem, id)
+	var i OrderItem
+	err := row.Scan(
+		&i.ID,
+		&i.OrderID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getOrderWithItems = `-- name: GetOrderWithItems :one
+SELECT 
+    o.id, o.customer_id, o.total_amount, o.status, o.created_at, o.updated_at,
+    c.name as customer_name,
+    c.email as customer_email,
+    json_agg(
+        json_build_object(
+            'id', oi.id,
+            'product_id', oi.product_id,
+            'product_name', p.name,
+            'quantity', oi.quantity,
+            'price', oi.price
+        )
+    ) as items
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+LEFT JOIN order_items oi ON o.id = oi.order_id
+LEFT JOIN products p ON oi.product_id = p.id
+WHERE o.id = $1
+GROUP BY o.id, c.name, c.email
+`
+
+type GetOrderWithItemsRow struct {
+	ID            uuid.UUID
+	CustomerID    uuid.UUID
+	TotalAmount   pgtype.Numeric
+	Status        string
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
+	CustomerName  string
+	CustomerEmail string
+	Items         []byte
+}
+
+func (q *Queries) GetOrderWithItems(ctx context.Context, id uuid.UUID) (GetOrderWithItemsRow, error) {
+	row := q.db.QueryRow(ctx, getOrderWithItems, id)
+	var i GetOrderWithItemsRow
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.TotalAmount,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.CustomerName,
+		&i.CustomerEmail,
+		&i.Items,
+	)
+	return i, err
+}
+
+const getProduct = `-- name: GetProduct :one
+SELECT id, name, price, stock_count, category, created_at, updated_at FROM products WHERE id = $1
+`
+
+// Products
+func (q *Queries) GetProduct(ctx context.Context, id uuid.UUID) (Product, error) {
+	row := q.db.QueryRow(ctx, getProduct, id)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Price,
+		&i.StockCount,
+		&i.Category,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getRoom = `-- name: GetRoom :one
+SELECT id, number, capacity, is_vip, created_at, updated_at FROM rooms WHERE id = $1
+`
+
+// Rooms
+func (q *Queries) GetRoom(ctx context.Context, id uuid.UUID) (Room, error) {
+	row := q.db.QueryRow(ctx, getRoom, id)
+	var i Room
+	err := row.Scan(
+		&i.ID,
+		&i.Number,
+		&i.Capacity,
+		&i.IsVip,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getSession = `-- name: GetSession :one
+SELECT id, movie_id, room_id, start_time, price, created_at, updated_at FROM sessions WHERE id = $1
+`
+
+// Sessions
+func (q *Queries) GetSession(ctx context.Context, id uuid.UUID) (Session, error) {
+	row := q.db.QueryRow(ctx, getSession, id)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.MovieID,
+		&i.RoomID,
+		&i.StartTime,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getSessionWithDetails = `-- name: GetSessionWithDetails :one
+SELECT 
+    s.id, s.movie_id, s.room_id, s.start_time, s.price, s.created_at, s.updated_at,
+    m.title as movie_title,
+    m.duration as movie_duration,
+    r.number as room_number,
+    r.capacity as room_capacity,
+    r.is_vip as room_is_vip
+FROM sessions s
+JOIN movies m ON s.movie_id = m.id
+JOIN rooms r ON s.room_id = r.id
+WHERE s.id = $1
+`
+
+type GetSessionWithDetailsRow struct {
+	ID            uuid.UUID
+	MovieID       uuid.UUID
+	RoomID        uuid.UUID
+	StartTime     pgtype.Timestamp
+	Price         pgtype.Numeric
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
+	MovieTitle    string
+	MovieDuration int32
+	RoomNumber    int32
+	RoomCapacity  int32
+	RoomIsVip     pgtype.Bool
+}
+
+// Complex Queries
+func (q *Queries) GetSessionWithDetails(ctx context.Context, id uuid.UUID) (GetSessionWithDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getSessionWithDetails, id)
+	var i GetSessionWithDetailsRow
+	err := row.Scan(
+		&i.ID,
+		&i.MovieID,
+		&i.RoomID,
+		&i.StartTime,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.MovieTitle,
+		&i.MovieDuration,
+		&i.RoomNumber,
+		&i.RoomCapacity,
+		&i.RoomIsVip,
+	)
+	return i, err
+}
+
+const getTicket = `-- name: GetTicket :one
+SELECT id, session_id, customer_id, seat_number, price, created_at, updated_at FROM tickets WHERE id = $1
+`
+
+// Tickets
+func (q *Queries) GetTicket(ctx context.Context, id uuid.UUID) (Ticket, error) {
+	row := q.db.QueryRow(ctx, getTicket, id)
+	var i Ticket
+	err := row.Scan(
+		&i.ID,
+		&i.SessionID,
+		&i.CustomerID,
+		&i.SeatNumber,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const listCustomers = `-- name: ListCustomers :many
+SELECT id, name, email, phone, created_at, updated_at FROM customers ORDER BY name
+`
+
+func (q *Queries) ListCustomers(ctx context.Context) ([]Customer, error) {
+	rows, err := q.db.Query(ctx, listCustomers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Customer
+	for rows.Next() {
+		var i Customer
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Phone,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEmployees = `-- name: ListEmployees :many
+SELECT id, name, email, role, phone, created_at, updated_at FROM employees ORDER BY name
+`
+
+func (q *Queries) ListEmployees(ctx context.Context) ([]Employee, error) {
+	rows, err := q.db.Query(ctx, listEmployees)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Employee
+	for rows.Next() {
+		var i Employee
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Role,
+			&i.Phone,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMovies = `-- name: ListMovies :many
-SELECT id, title, duration, genre, release_date, created_at, updated_at FROM movies
+SELECT id, title, duration, genre, release_date, created_at, updated_at FROM movies ORDER BY title
 `
 
 func (q *Queries) ListMovies(ctx context.Context) ([]Movie, error) {
@@ -110,25 +854,25 @@ func (q *Queries) ListMovies(ctx context.Context) ([]Movie, error) {
 	return items, nil
 }
 
-const listMoviesByGenre = `-- name: ListMoviesByGenre :many
-SELECT id, title, duration, genre, release_date, created_at, updated_at FROM movies WHERE genre = $1
+const listOrderItems = `-- name: ListOrderItems :many
+SELECT id, order_id, product_id, quantity, price, created_at, updated_at FROM order_items WHERE order_id = $1
 `
 
-func (q *Queries) ListMoviesByGenre(ctx context.Context, genre string) ([]Movie, error) {
-	rows, err := q.db.Query(ctx, listMoviesByGenre, genre)
+func (q *Queries) ListOrderItems(ctx context.Context, orderID uuid.UUID) ([]OrderItem, error) {
+	rows, err := q.db.Query(ctx, listOrderItems, orderID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Movie
+	var items []OrderItem
 	for rows.Next() {
-		var i Movie
+		var i OrderItem
 		if err := rows.Scan(
 			&i.ID,
-			&i.Title,
-			&i.Duration,
-			&i.Genre,
-			&i.ReleaseDate,
+			&i.OrderID,
+			&i.ProductID,
+			&i.Quantity,
+			&i.Price,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -140,6 +884,433 @@ func (q *Queries) ListMoviesByGenre(ctx context.Context, genre string) ([]Movie,
 		return nil, err
 	}
 	return items, nil
+}
+
+const listOrders = `-- name: ListOrders :many
+SELECT id, customer_id, total_amount, status, created_at, updated_at FROM orders ORDER BY created_at DESC
+`
+
+func (q *Queries) ListOrders(ctx context.Context) ([]Order, error) {
+	rows, err := q.db.Query(ctx, listOrders)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Order
+	for rows.Next() {
+		var i Order
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.TotalAmount,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOrdersByCustomer = `-- name: ListOrdersByCustomer :many
+SELECT id, customer_id, total_amount, status, created_at, updated_at FROM orders WHERE customer_id = $1 ORDER BY created_at DESC
+`
+
+func (q *Queries) ListOrdersByCustomer(ctx context.Context, customerID uuid.UUID) ([]Order, error) {
+	rows, err := q.db.Query(ctx, listOrdersByCustomer, customerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Order
+	for rows.Next() {
+		var i Order
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.TotalAmount,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listProducts = `-- name: ListProducts :many
+SELECT id, name, price, stock_count, category, created_at, updated_at FROM products ORDER BY name
+`
+
+func (q *Queries) ListProducts(ctx context.Context) ([]Product, error) {
+	rows, err := q.db.Query(ctx, listProducts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Product
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Price,
+			&i.StockCount,
+			&i.Category,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listProductsByCategory = `-- name: ListProductsByCategory :many
+SELECT id, name, price, stock_count, category, created_at, updated_at FROM products WHERE category = $1 ORDER BY name
+`
+
+func (q *Queries) ListProductsByCategory(ctx context.Context, category string) ([]Product, error) {
+	rows, err := q.db.Query(ctx, listProductsByCategory, category)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Product
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Price,
+			&i.StockCount,
+			&i.Category,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listRooms = `-- name: ListRooms :many
+SELECT id, number, capacity, is_vip, created_at, updated_at FROM rooms ORDER BY number
+`
+
+func (q *Queries) ListRooms(ctx context.Context) ([]Room, error) {
+	rows, err := q.db.Query(ctx, listRooms)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Room
+	for rows.Next() {
+		var i Room
+		if err := rows.Scan(
+			&i.ID,
+			&i.Number,
+			&i.Capacity,
+			&i.IsVip,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSessions = `-- name: ListSessions :many
+SELECT id, movie_id, room_id, start_time, price, created_at, updated_at FROM sessions ORDER BY start_time
+`
+
+func (q *Queries) ListSessions(ctx context.Context) ([]Session, error) {
+	rows, err := q.db.Query(ctx, listSessions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Session
+	for rows.Next() {
+		var i Session
+		if err := rows.Scan(
+			&i.ID,
+			&i.MovieID,
+			&i.RoomID,
+			&i.StartTime,
+			&i.Price,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSessionsByMovie = `-- name: ListSessionsByMovie :many
+SELECT id, movie_id, room_id, start_time, price, created_at, updated_at FROM sessions WHERE movie_id = $1 ORDER BY start_time
+`
+
+func (q *Queries) ListSessionsByMovie(ctx context.Context, movieID uuid.UUID) ([]Session, error) {
+	rows, err := q.db.Query(ctx, listSessionsByMovie, movieID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Session
+	for rows.Next() {
+		var i Session
+		if err := rows.Scan(
+			&i.ID,
+			&i.MovieID,
+			&i.RoomID,
+			&i.StartTime,
+			&i.Price,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSessionsByRoom = `-- name: ListSessionsByRoom :many
+SELECT id, movie_id, room_id, start_time, price, created_at, updated_at FROM sessions WHERE room_id = $1 ORDER BY start_time
+`
+
+func (q *Queries) ListSessionsByRoom(ctx context.Context, roomID uuid.UUID) ([]Session, error) {
+	rows, err := q.db.Query(ctx, listSessionsByRoom, roomID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Session
+	for rows.Next() {
+		var i Session
+		if err := rows.Scan(
+			&i.ID,
+			&i.MovieID,
+			&i.RoomID,
+			&i.StartTime,
+			&i.Price,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTickets = `-- name: ListTickets :many
+SELECT id, session_id, customer_id, seat_number, price, created_at, updated_at FROM tickets ORDER BY created_at DESC
+`
+
+func (q *Queries) ListTickets(ctx context.Context) ([]Ticket, error) {
+	rows, err := q.db.Query(ctx, listTickets)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Ticket
+	for rows.Next() {
+		var i Ticket
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.CustomerID,
+			&i.SeatNumber,
+			&i.Price,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTicketsByCustomer = `-- name: ListTicketsByCustomer :many
+SELECT id, session_id, customer_id, seat_number, price, created_at, updated_at FROM tickets WHERE customer_id = $1 ORDER BY created_at DESC
+`
+
+func (q *Queries) ListTicketsByCustomer(ctx context.Context, customerID uuid.UUID) ([]Ticket, error) {
+	rows, err := q.db.Query(ctx, listTicketsByCustomer, customerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Ticket
+	for rows.Next() {
+		var i Ticket
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.CustomerID,
+			&i.SeatNumber,
+			&i.Price,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTicketsBySession = `-- name: ListTicketsBySession :many
+SELECT id, session_id, customer_id, seat_number, price, created_at, updated_at FROM tickets WHERE session_id = $1
+`
+
+func (q *Queries) ListTicketsBySession(ctx context.Context, sessionID uuid.UUID) ([]Ticket, error) {
+	rows, err := q.db.Query(ctx, listTicketsBySession, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Ticket
+	for rows.Next() {
+		var i Ticket
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.CustomerID,
+			&i.SeatNumber,
+			&i.Price,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateCustomer = `-- name: UpdateCustomer :one
+UPDATE customers
+SET
+    name = COALESCE($2, name),
+    email = COALESCE($3, email),
+    phone = COALESCE($4, phone),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, name, email, phone, created_at, updated_at
+`
+
+type UpdateCustomerParams struct {
+	ID    uuid.UUID
+	Name  string
+	Email string
+	Phone pgtype.Text
+}
+
+func (q *Queries) UpdateCustomer(ctx context.Context, arg UpdateCustomerParams) (Customer, error) {
+	row := q.db.QueryRow(ctx, updateCustomer,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.Phone,
+	)
+	var i Customer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateEmployee = `-- name: UpdateEmployee :one
+UPDATE employees
+SET
+    name = COALESCE($2, name),
+    email = COALESCE($3, email),
+    role = COALESCE($4, role),
+    phone = COALESCE($5, phone),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, name, email, role, phone, created_at, updated_at
+`
+
+type UpdateEmployeeParams struct {
+	ID    uuid.UUID
+	Name  string
+	Email string
+	Role  string
+	Phone pgtype.Text
+}
+
+func (q *Queries) UpdateEmployee(ctx context.Context, arg UpdateEmployeeParams) (Employee, error) {
+	row := q.db.QueryRow(ctx, updateEmployee,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.Role,
+		arg.Phone,
+	)
+	var i Employee
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Role,
+		&i.Phone,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const updateMovie = `-- name: UpdateMovie :one
@@ -177,6 +1348,215 @@ func (q *Queries) UpdateMovie(ctx context.Context, arg UpdateMovieParams) (Movie
 		&i.Duration,
 		&i.Genre,
 		&i.ReleaseDate,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateOrder = `-- name: UpdateOrder :one
+UPDATE orders
+SET
+    total_amount = COALESCE($2, total_amount),
+    status = COALESCE($3, status),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, customer_id, total_amount, status, created_at, updated_at
+`
+
+type UpdateOrderParams struct {
+	ID          uuid.UUID
+	TotalAmount pgtype.Numeric
+	Status      string
+}
+
+func (q *Queries) UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order, error) {
+	row := q.db.QueryRow(ctx, updateOrder, arg.ID, arg.TotalAmount, arg.Status)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.CustomerID,
+		&i.TotalAmount,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateOrderItem = `-- name: UpdateOrderItem :one
+UPDATE order_items
+SET
+    quantity = COALESCE($2, quantity),
+    price = COALESCE($3, price),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, order_id, product_id, quantity, price, created_at, updated_at
+`
+
+type UpdateOrderItemParams struct {
+	ID       uuid.UUID
+	Quantity int32
+	Price    pgtype.Numeric
+}
+
+func (q *Queries) UpdateOrderItem(ctx context.Context, arg UpdateOrderItemParams) (OrderItem, error) {
+	row := q.db.QueryRow(ctx, updateOrderItem, arg.ID, arg.Quantity, arg.Price)
+	var i OrderItem
+	err := row.Scan(
+		&i.ID,
+		&i.OrderID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateProduct = `-- name: UpdateProduct :one
+UPDATE products
+SET
+    name = COALESCE($2, name),
+    price = COALESCE($3, price),
+    stock_count = COALESCE($4, stock_count),
+    category = COALESCE($5, category),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, name, price, stock_count, category, created_at, updated_at
+`
+
+type UpdateProductParams struct {
+	ID         uuid.UUID
+	Name       string
+	Price      pgtype.Numeric
+	StockCount int32
+	Category   string
+}
+
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
+	row := q.db.QueryRow(ctx, updateProduct,
+		arg.ID,
+		arg.Name,
+		arg.Price,
+		arg.StockCount,
+		arg.Category,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Price,
+		&i.StockCount,
+		&i.Category,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateProductStock = `-- name: UpdateProductStock :one
+UPDATE products
+SET
+    stock_count = stock_count + $2,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, name, price, stock_count, category, created_at, updated_at
+`
+
+type UpdateProductStockParams struct {
+	ID         uuid.UUID
+	StockCount int32
+}
+
+func (q *Queries) UpdateProductStock(ctx context.Context, arg UpdateProductStockParams) (Product, error) {
+	row := q.db.QueryRow(ctx, updateProductStock, arg.ID, arg.StockCount)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Price,
+		&i.StockCount,
+		&i.Category,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateRoom = `-- name: UpdateRoom :one
+UPDATE rooms
+SET
+    number = COALESCE($2, number),
+    capacity = COALESCE($3, capacity),
+    is_vip = COALESCE($4, is_vip),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, number, capacity, is_vip, created_at, updated_at
+`
+
+type UpdateRoomParams struct {
+	ID       uuid.UUID
+	Number   int32
+	Capacity int32
+	IsVip    pgtype.Bool
+}
+
+func (q *Queries) UpdateRoom(ctx context.Context, arg UpdateRoomParams) (Room, error) {
+	row := q.db.QueryRow(ctx, updateRoom,
+		arg.ID,
+		arg.Number,
+		arg.Capacity,
+		arg.IsVip,
+	)
+	var i Room
+	err := row.Scan(
+		&i.ID,
+		&i.Number,
+		&i.Capacity,
+		&i.IsVip,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateSession = `-- name: UpdateSession :one
+UPDATE sessions
+SET
+    movie_id = COALESCE($2, movie_id),
+    room_id = COALESCE($3, room_id),
+    start_time = COALESCE($4, start_time),
+    price = COALESCE($5, price),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, movie_id, room_id, start_time, price, created_at, updated_at
+`
+
+type UpdateSessionParams struct {
+	ID        uuid.UUID
+	MovieID   uuid.UUID
+	RoomID    uuid.UUID
+	StartTime pgtype.Timestamp
+	Price     pgtype.Numeric
+}
+
+func (q *Queries) UpdateSession(ctx context.Context, arg UpdateSessionParams) (Session, error) {
+	row := q.db.QueryRow(ctx, updateSession,
+		arg.ID,
+		arg.MovieID,
+		arg.RoomID,
+		arg.StartTime,
+		arg.Price,
+	)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.MovieID,
+		&i.RoomID,
+		&i.StartTime,
+		&i.Price,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.1
+	github.com/jaswdr/faker v1.19.1
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.9.0
 )

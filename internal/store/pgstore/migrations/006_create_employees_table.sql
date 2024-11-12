@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS employees (
     "name" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) NOT NULL UNIQUE,
     "role" VARCHAR(100) NOT NULL,
-    "phone" VARCHAR(20),
+    "phone" VARCHAR(255),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

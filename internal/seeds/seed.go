@@ -40,38 +40,47 @@ func Run(ctx context.Context, pool *pgxpool.Pool) error {
 		fmt.Printf("- Room %d (Capacity: %d, VIP: %v)\n",
 			room.Number, room.Capacity, room.IsVip.Bool)
 	}
-	// // Cria sessions
-	// sessions, err := seedSessions(ctx, queries, fake, movies, rooms)
-	// if err != nil {
-	// 	return fmt.Errorf("error seeding sessions: %w", err)
-	// }
-	//
-	// // Cria customers
-	// customers, err := seedCustomers(ctx, queries, fake)
-	// if err != nil {
-	// 	return fmt.Errorf("error seeding customers: %w", err)
-	// }
-	//
-	// // Cria employees
-	// if err := seedEmployees(ctx, queries, fake); err != nil {
-	// 	return fmt.Errorf("error seeding employees: %w", err)
-	// }
-	//
-	// // Cria products
-	// products, err := seedProducts(ctx, queries, fake)
-	// if err != nil {
-	// 	return fmt.Errorf("error seeding products: %w", err)
-	// }
-	//
-	// // Cria orders e order items
-	// if err := seedOrders(ctx, queries, fake, customers, products); err != nil {
-	// 	return fmt.Errorf("error seeding orders: %w", err)
-	// }
-	//
-	// // Cria tickets
-	// if err := seedTickets(ctx, queries, fake, sessions, customers); err != nil {
-	// 	return fmt.Errorf("error seeding tickets: %w", err)
-	// }
+	// Cria sessions
+	sessions, err := seedSessions(ctx, queries, fake, movies, rooms)
+	if err != nil {
+		return fmt.Errorf("error seeding sessions: %w", err)
+	}
+	fmt.Printf("\nCreated %d sessions\n", len(sessions))
+
+	// Cria customers
+	customers, err := seedCustomers(ctx, queries, fake)
+	if err != nil {
+		return fmt.Errorf("error seeding customers: %w", err)
+	}
+	fmt.Printf("\nCreated %d customers\n", len(customers))
+
+	// Cria employees
+	employees, err := seedEmployees(ctx, queries, fake)
+	if err != nil {
+		return fmt.Errorf("error seeding employees: %w", err)
+	}
+	fmt.Printf("\nCreated %d employees\n", len(employees))
+
+	// Cria products
+	products, err := seedProducts(ctx, queries, fake)
+	if err != nil {
+		return fmt.Errorf("error seeding products: %w", err)
+	}
+	fmt.Printf("\nCreated %d products\n", len(products))
+
+	// Cria orders e order items
+	orders, err := seedOrders(ctx, queries, fake, customers, products)
+	if err != nil {
+		return fmt.Errorf("error seeding orders: %w", err)
+	}
+	fmt.Printf("\nCreated %d orders\n", len(orders))
+
+	// Cria tickets
+	tickets, err := seedTickets(ctx, queries, fake, sessions, customers)
+	if err != nil {
+		return fmt.Errorf("error seeding tickets: %w", err)
+	}
+	fmt.Printf("\nCreated %d tickets\n", len(tickets))
 
 	fmt.Println("Seeding finished successfully!")
 

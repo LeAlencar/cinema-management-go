@@ -1,4 +1,3 @@
-// internal/seeds/tickets.go
 package seeds
 
 import (
@@ -16,7 +15,7 @@ func seedTickets(ctx context.Context, q *pgstore.Queries, fake faker.Faker, sess
 	var tickets []pgstore.Ticket
 
 	for _, session := range sessions {
-		numTickets := fake.IntBetween(10, 40)
+		numTickets := fake.IntBetween(3, 10)
 		usedSeats := make(map[string]bool)
 
 		for i := 0; i < numTickets; i++ {

@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS customers (
     "id" uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     "name" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) NOT NULL UNIQUE,
-    "phone" VARCHAR(20),
+    "phone" VARCHAR(255),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

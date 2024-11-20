@@ -11,6 +11,14 @@ Integrantes:
 
 - Mateus Rocha RA: 22.222.002-2
 
+---
+
+## Diagrama Relacional
+
+![image](https://github.com/user-attachments/assets/4c7980e6-dafe-42a1-bcfa-e81f994b745f)
+
+---
+
 ## Como executar o projeto
 Para rodar o projeto é necessário ter o Docker instalado em sua máquina. Assim como o Golang.
 

@@ -183,7 +183,7 @@ Para rodar o projeto é necessário ter o Docker instalado em sua máquina. Assi
 
 ### Clonar o repositório
 ```bash
-git clone https://github.com/lealencar/music-db-project.git
+git clone https://github.com/lealencar/cinema-management-go.git
 ```
 
 ### Rodar o banco de dados

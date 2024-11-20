@@ -39,6 +39,11 @@ go generate ./... && sqlc generate -f ./internal/store/pgstore/sqlc.yaml
 
 ```
 
+### Rodar as migrations do banco de dados
+```bash
+go run cmd/tools/terndotenv/main.go
+```
+
 ### Rodar o seed do banco de dados
 ```bash
 go run cmd/tools/seed/main.go
